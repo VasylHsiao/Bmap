@@ -36,10 +36,6 @@ public class MainActivity extends Activity {
         mMap = mMapView.getMap();
         mMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
         mMap.setMyLocationEnabled(true);//开启定位图层
-        View child = mMapView.getChildAt(1);
-        if (child != null) {
-            child.setVisibility(View.INVISIBLE);
-        }
 
         //初始化LocationClient类
         mLocationClient = new LocationClient(getApplicationContext());
