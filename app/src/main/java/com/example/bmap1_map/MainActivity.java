@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
         startLocation = (Button) findViewById(R.id.addfence);
         mMapView = (MapView) findViewById(R.id.bmapView);
         mMap = mMapView.getMap();
+        mMap.setMyLocationEnabled(true);
 
     }
 
