@@ -2,7 +2,6 @@ package com.example.bmap1_map;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,25 +9,26 @@ import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.Poi;
-import com.baidu.location.PoiRegion;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.example.bmap1_map.service.LocationService;
-import com.example.bmap1_map.service.Utils;
 
 public class MainActivity extends Activity {
 
+    public MapView mMapView;
+    public BaiduMap mMap;
     private LocationService locationService;
     private TextView LocationResult;
     private TextView LocationDiagnostic;
     private Button startLocation;
-    public MapView mMapView;
-    public BaiduMap mMap;
+    private int locTimes = 0;//定位次数，用于控制地图更新动作（仅第一次调整中心和比例）
 
 
     @Override
@@ -82,24 +82,14 @@ public class MainActivity extends Activity {
 
         @Override
         public void onReceiveLocation(BDLocation location) {
-            if (null != location && location.getLocType() != BDLocation.TypeServerError) {
+            // map view 销毁后不在处理新接收的位置
+            if (location == null || mMapView == null) {
+                return;
+            }
 
-                // map view 销毁后不在处理新接收的位置
-                if (location == null || mMapView == null) {
-                    return;
-                }
-
-                //构造定位数据
-                MyLocationData locData = new MyLocationData.Builder()
-                        .accuracy(location.getRadius())
-                        // 此处设置开发者获取到的方向信息，顺时针0-360
-                        .direction(location.getDirection())
-                        .latitude(location.getLatitude())
-                        .longitude(location.getLongitude())
-                        .build();
-                //设置定位数据，显示定位蓝点
-                mMap.setMyLocationData(locData);
-
+            //仅当第一次定位，调整中心和比例
+            locTimes++;
+            if (locTimes == 1) {
                 //构造地理坐标数据
                 LatLng ll = new LatLng(location.getLatitude(),
                         location.getLongitude());
@@ -107,10 +97,28 @@ public class MainActivity extends Activity {
                 MapStatus.Builder builder = new MapStatus.Builder();
                 builder.target(ll).zoom(17.0f);
                 mMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
+            }
 
-                //输出日志
-                Log.i("tag", "lat:" + location.getLatitude() + "\n" +
-                        "lon:" + location.getLongitude() + "\n" + "Radius:" + location.getRadius() + "\n" + "Direc:" + location.getDirection());
+            //构造定位数据
+            MyLocationData locData = new MyLocationData.Builder()
+                    .accuracy(location.getRadius())
+                    // 此处设置开发者获取到的方向信息，顺时针0-360
+                    .direction(location.getDirection())
+                    .latitude(location.getLatitude())
+                    .longitude(location.getLongitude())
+                    .build();
+            //设置定位数据，设置并显示定位蓝点
+//            BitmapDescriptor BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.location_marker);//自定义图标
+            MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.FOLLOWING, true,null );
+            mMap.setMyLocationConfiguration(mLocationConfig);
+            mMap.setMyLocationData(locData);
+
+            //输出日志
+            Log.i("tag", "lat:" + location.getLatitude() + "\n" +
+                    "lon:" + location.getLongitude() + "\n"
+                    + "Radius:" + location.getRadius() + "\n"
+                    + "Direc:" + location.getDirection() + "\n"
+                    + "locTimes:" + locTimes);
 
 //                int tag = 1;
 //                StringBuffer sb = new StringBuffer(256);
@@ -215,7 +223,6 @@ public class MainActivity extends Activity {
 //                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 //                System.out.println(sb.toString());
 //                System.out.println("00000000000000000000000000000000000000000000000000000000000000000000");
-            }
         }
     };
 
