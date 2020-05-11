@@ -11,8 +11,13 @@ import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.Poi;
 import com.baidu.location.PoiRegion;
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MyLocationData;
 import com.example.bmap1_map.service.LocationService;
 import com.example.bmap1_map.service.Utils;
+
+import java.sql.SQLOutput;
 
 //public class MainActivity extends Activity {
 //    private MapView mMapView = null;
@@ -120,13 +125,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.location);
 
         // -----------demo view config ------------
-        setContentView(R.layout.location);
-        LocationResult = (TextView) findViewById(R.id.textView1);
-        LocationDiagnostic = (TextView) findViewById(R.id.textView2);
-        LocationResult.setMovementMethod(ScrollingMovementMethod.getInstance());
         startLocation = (Button) findViewById(R.id.addfence);
+//        LocationResult = (TextView) findViewById(R.id.textView1);
+//        LocationDiagnostic = (TextView) findViewById(R.id.textView2);
+//        LocationResult.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
     @Override
@@ -141,18 +146,12 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
 
-        // TODO Auto-generated method stub
         // -----------location config ------------
         //获取locationservice实例
         locationService = ((Map) getApplication()).locationService;
         //注册监听
         locationService.registerListener(mListener);
-        int type = getIntent().getIntExtra("from", 0);
-        if (type == 0) {
-            locationService.setLocationOption(locationService.getDefaultLocationClientOption());
-        } else if (type == 1) {
-            locationService.start();
-        }
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
         startLocation.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -274,34 +273,11 @@ public class MainActivity extends Activity {
                     sb.append("\ndescribe : ");
                     sb.append("无法获取有效定位依据导致定位失败，一般是由于手机的原因，处于飞行模式下一般会造成这种结果，可以试着重启手机");
                 }
-                logMsg(sb.toString(), tag);
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                System.out.println(sb.toString());
+                System.out.println("00000000000000000000000000000000000000000000000000000000000000000000");
             }
         }
     };
-
-    public void logMsg(final String str, final int tag) {
-
-        try {
-            if (LocationResult != null) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        LocationResult.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (tag == Utils.RECEIVE_TAG) {
-                                    LocationResult.setText(str);
-                                } else if (tag == Utils.DIAGNOSTIC_TAG) {
-                                    LocationDiagnostic.setText(str);
-                                }
-                            }
-                        });
-                    }
-                }).start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 }
