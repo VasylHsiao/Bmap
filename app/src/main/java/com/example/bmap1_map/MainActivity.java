@@ -39,8 +39,8 @@ public class MainActivity extends Activity {
         // -----------demo view config ------------
         startLocation = (Button) findViewById(R.id.addfence);
         mMapView = (MapView) findViewById(R.id.bmapView);
-        mMap = mMapView.getMap();
-        mMap.setMyLocationEnabled(true);
+        mMap = mMapView.getMap();//获取地图控件对象
+        mMap.setMyLocationEnabled(true);//开启定位地图图层
 
     }
 
@@ -111,9 +111,6 @@ public class MainActivity extends Activity {
                 //输出日志
                 Log.i("tag", "lat:" + location.getLatitude() + "\n" +
                         "lon:" + location.getLongitude() + "\n" + "Radius:" + location.getRadius() + "\n" + "Direc:" + location.getDirection());
-
-
-
 
 //                int tag = 1;
 //                StringBuffer sb = new StringBuffer(256);
