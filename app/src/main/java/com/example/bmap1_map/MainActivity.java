@@ -51,15 +51,17 @@ public class MainActivity extends Activity {
         option.setCoorType("bd09ll");
         option.setScanSpan(1000);
         option.setOpenGps(true);
-        option.setLocationNotify(true);
+        option.setLocationNotify(false);
         option.setIgnoreKillProcess(false);//设置是否在stop的时候杀死这个进程，默认（建议）不杀死，即setIgnoreKillProcess(true)
         option.setIsNeedAddress(true);//可选，是否需要地址信息，默认为不需要，即参数为false
+        option.setNeedDeviceDirect(true); // 可选，设置是否需要设备方向结果
         option.setNeedNewVersionRgc(true);
-        option.setIsNeedLocationDescribe(true);
+        option.setIsNeedLocationDescribe(true);// 可选，默认false，设置是否需要位置语义化结果，可以在BDLocation
+        option.setIsNeedLocationPoiList(true); // 可选，默认false，设置是否需要POI结果，可以在BDLocation
+        option.SetIgnoreCacheException(false); // 可选，默认false，设置是否收集CRASH信息，默认收集
         mLocationClient.setLocOption(option);//需将配置好的LocationClientOption对象，通过setLocOption方法传递给LocationClient对象使用
 
         mLocationClient.start();//调用LocationClient的start()方法，便可发起定位请求
-
 
     }
 
