@@ -9,9 +9,9 @@ import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
+import com.baidu.location.Poi;
+import com.baidu.location.PoiRegion;
 import com.baidu.mapapi.map.BaiduMap;
-import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
@@ -110,16 +110,40 @@ public class MainActivity extends Activity {
                     .build();
             //设置定位数据，设置并显示定位蓝点
 //            BitmapDescriptor BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.location_marker);//自定义图标
-            MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true,null );
+            MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null);
             mMap.setMyLocationConfiguration(mLocationConfig);
             mMap.setMyLocationData(locData);//显示定位蓝点
 
-            //输出日志
-            Log.i("tag", "lat:" + location.getLatitude() + "\n" +
+            System.out.println("lat:" + location.getLatitude() + "\n" +
                     "lon:" + location.getLongitude() + "\n"
                     + "Radius:" + location.getRadius() + "\n"
                     + "Direc:" + location.getDirection() + "\n"
                     + "locTimes:" + locTimes);
+
+            //周边POI信息获取
+            Poi poi = location.getPoiList().get(0);
+            String poiName = poi.getName();    //获取POI名称
+            String poiTags = poi.getTags();    //获取POI类型
+            String poiAddr = poi.getAddr();    //获取POI地址
+
+            PoiRegion poiRegion = location.getPoiRegion();
+            String poiDerectionDesc = poiRegion.getDerectionDesc();    //获取PoiRegion位置关系
+            String poiRegionName = poiRegion.getName();    //获取PoiRegion名称
+            String poiReTags = poiRegion.getTags();    //获取PoiRegion类型
+
+            //输出日志
+            Log.i("tag0", "poiName" + poiName + "\n" +
+                    "poiTags:" + poiTags + "\n"
+                    + "poiAddr:" + poiAddr + "\n"
+                    + "poiDerectionDesc:" + poiDerectionDesc + "\n"
+                    + "poiRegionName:" + poiRegionName + "\n"
+                    + "poiReTags:" + poiReTags + "\n");
+            //输出日志
+//            Log.i("tag", "lat:" + location.getLatitude() + "\n" +
+//                    "lon:" + location.getLongitude() + "\n"
+//                    + "Radius:" + location.getRadius() + "\n"
+//                    + "Direc:" + location.getDirection() + "\n"
+//                    + "locTimes:" + locTimes);
 
 //                int tag = 1;
 //                StringBuffer sb = new StringBuffer(256);
