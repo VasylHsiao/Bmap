@@ -28,11 +28,17 @@ public class PoiSearchService {
 
     //周边检索
     public boolean poiSearchNearby(LatLng loc,int radius,String keyword,int pageNum){
-        return mPoiSearch.searchNearby(new PoiNearbySearchOption()
-                .location(loc)
-                .radius(radius)
-                .keyword(keyword)
-                .pageNum(pageNum));
+        // 配置请求参数
+        PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption()
+                .location(loc) // 经纬度
+                .radius(radius) // 检索半径 单位： m
+                .keyword(keyword) // 检索关键字
+                .pageNum(pageNum) // 分页编号
+                .radiusLimit(false)// 是否严格限定召回结果在设置检索半径范围内,(默认值为false)设置为true时会影响返回结果中total准确性及每页召回poi数量
+                // 检索结果详细程度：取值为1 或空，则返回基本信息；取值为2，返回检索POI详细信息
+                .scope(2);
+        // 发起检索
+        return mPoiSearch.searchNearby(nearbySearchOption);
     }
 
     //矩形区域检索
