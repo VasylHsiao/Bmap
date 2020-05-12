@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
-import com.baidu.location.Poi;
-import com.baidu.location.PoiRegion;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -42,6 +40,12 @@ public class MainActivity extends Activity {
         mMap = mMapView.getMap();//获取地图控件对象
         mMap.setMyLocationEnabled(true);//开启定位地图图层
 
+        //获取locationservice实例
+        locationService = ((Map) getApplication()).locationService;
+        //注册监听
+        locationService.registerListener(mListener);
+        //设置定位参数
+        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
     }
 
     @Override
@@ -56,13 +60,6 @@ public class MainActivity extends Activity {
     protected void onStart() {
         super.onStart();
 
-        // -----------location config ------------
-        //获取locationservice实例
-        locationService = ((Map) getApplication()).locationService;
-        //注册监听
-        locationService.registerListener(mListener);
-        //设置定位参数
-        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
         startLocation.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -113,31 +110,34 @@ public class MainActivity extends Activity {
             MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null);
             mMap.setMyLocationConfiguration(mLocationConfig);
             mMap.setMyLocationData(locData);//显示定位蓝点
-
+            //输出
             System.out.println("lat:" + location.getLatitude() + "\n" +
                     "lon:" + location.getLongitude() + "\n"
                     + "Radius:" + location.getRadius() + "\n"
                     + "Direc:" + location.getDirection() + "\n"
-                    + "locTimes:" + locTimes);
+                    + "locTimes:" + locTimes + "\n"
+                    + "Code:" + location.getLocType());
+            if (location.getPoiList() == null) {
+                System.out.println("失败！！！！！！！！！！！！！！！！！！");
+            }
 
-            //周边POI信息获取
-            Poi poi = location.getPoiList().get(0);
-            String poiName = poi.getName();    //获取POI名称
-            String poiTags = poi.getTags();    //获取POI类型
-            String poiAddr = poi.getAddr();    //获取POI地址
+//            ||
 
-            PoiRegion poiRegion = location.getPoiRegion();
-            String poiDerectionDesc = poiRegion.getDerectionDesc();    //获取PoiRegion位置关系
-            String poiRegionName = poiRegion.getName();    //获取PoiRegion名称
-            String poiReTags = poiRegion.getTags();    //获取PoiRegion类型
-
-            //输出日志
-            Log.i("tag0", "poiName" + poiName + "\n" +
-                    "poiTags:" + poiTags + "\n"
-                    + "poiAddr:" + poiAddr + "\n"
-                    + "poiDerectionDesc:" + poiDerectionDesc + "\n"
-                    + "poiRegionName:" + poiRegionName + "\n"
-                    + "poiReTags:" + poiReTags + "\n");
+//            //周边POI信息获取
+//            Poi poi = location.getPoiList().get(0);
+//            String poiName = poi.getName();    //获取POI名称
+//            String poiTags = poi.getTags();    //获取POI类型
+//            String poiAddr = poi.getAddr();    //获取POI地址
+//
+//            PoiRegion poiRegion = location.getPoiRegion();
+//            String poiDerectionDesc = poiRegion.getDerectionDesc();    //获取PoiRegion位置关系
+//            String poiRegionName = poiRegion.getName();    //获取PoiRegion名称
+//            String poiReTags = poiRegion.getTags();    //获取PoiRegion类型
+//
+//            System.out.println(
+//                     "poiDerectionDesc:" + poiDerectionDesc + "\n"
+//                    + "poiRegionName:" + poiRegionName + "\n"
+//                    + "poiReTags:" + poiReTags + "\n");
             //输出日志
 //            Log.i("tag", "lat:" + location.getLatitude() + "\n" +
 //                    "lon:" + location.getLongitude() + "\n"
@@ -245,10 +245,8 @@ public class MainActivity extends Activity {
 //                    sb.append("\ndescribe : ");
 //                    sb.append("无法获取有效定位依据导致定位失败，一般是由于手机的原因，处于飞行模式下一般会造成这种结果，可以试着重启手机");
 //                }
-//                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                System.out.println(sb.toString());
-//                System.out.println("00000000000000000000000000000000000000000000000000000000000000000000");
         }
     };
+
 
 }

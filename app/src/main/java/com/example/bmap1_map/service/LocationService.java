@@ -117,7 +117,7 @@ public class LocationService {
         mOption.setIsNeedAddress(true); // 可选，设置是否需要地址信息，默认不需要
         mOption.setIsNeedLocationDescribe(true); // 可选，设置是否需要地址描述
         mOption.setNeedDeviceDirect(true); // 可选，设置是否需要设备方向结果
-        mOption.setLocationNotify(false); // 可选，默认false，设置是否当gps有效时按照1S1次频率输出GPS结果
+        mOption.setLocationNotify(true); // 可选，默认false，设置是否当gps有效时按照1S1次频率输出GPS结果
         mOption.setIgnoreKillProcess(false); // 可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop
         mOption.setIsNeedLocationDescribe(true); // 可选，默认false，设置是否需要位置语义化结果，可以在BDLocation
         mOption.setIsNeedLocationPoiList(true); // 可选，默认false，设置是否需要POI结果，可以在BDLocation
