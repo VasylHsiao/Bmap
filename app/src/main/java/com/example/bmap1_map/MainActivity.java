@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 if (startLocation.getText().toString().equals(getString(R.string.startlocation))) {
                     locationService.start();// 定位SDK
-                    // start之后会默认发起一次定位请求，开发者无须判断isstart并主动调用request
+                    locTimes = 0;//定位次数置零
                     startLocation.setText(getString(R.string.stoplocation));
                 } else {
                     locationService.stop();
@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
                         location.getLongitude());
                 //（以动画方式）改变地图状态（中心、倍数等）
                 MapStatus.Builder builder = new MapStatus.Builder();
-                builder.target(ll).zoom(17.0f);
+                builder.target(ll).zoom(18.0f);
                 mMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
             }
 
@@ -109,9 +109,9 @@ public class MainActivity extends Activity {
                     .build();
             //设置定位数据，设置并显示定位蓝点
 //            BitmapDescriptor BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.location_marker);//自定义图标
-            MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.FOLLOWING, true,null );
+            MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true,null );
             mMap.setMyLocationConfiguration(mLocationConfig);
-            mMap.setMyLocationData(locData);
+            mMap.setMyLocationData(locData);//显示定位蓝点
 
             //输出日志
             Log.i("tag", "lat:" + location.getLatitude() + "\n" +
