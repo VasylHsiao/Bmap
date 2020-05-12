@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
         locationService = ((Map) getApplication()).locationService;
         //注册监听
         locationService.registerListener(mListener);
+        //设置定位参数
         locationService.setLocationOption(locationService.getDefaultLocationClientOption());
         startLocation.setOnClickListener(new View.OnClickListener() {
 
