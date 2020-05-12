@@ -2,13 +2,14 @@ package com.example.bmap1_map;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
+import com.baidu.location.Poi;
+import com.baidu.location.PoiRegion;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -16,7 +17,13 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
+import com.baidu.mapapi.search.poi.PoiDetailResult;
+import com.baidu.mapapi.search.poi.PoiDetailSearchResult;
+import com.baidu.mapapi.search.poi.PoiIndoorResult;
+import com.baidu.mapapi.search.poi.PoiResult;
 import com.example.bmap1_map.service.LocationService;
+import com.example.bmap1_map.service.PoiSearchService;
 
 public class MainActivity extends Activity {
 
@@ -24,9 +31,10 @@ public class MainActivity extends Activity {
     public BaiduMap mMap;
     private LocationService locationService;
     private TextView LocationResult;
-    private TextView LocationDiagnostic;
+    //    private TextView LocationDiagnostic;
     private Button startLocation;
     private int locTimes = 0;//定位次数，用于控制地图更新动作（仅第一次调整中心和比例）
+    private PoiSearchService poiSearchService;
 
 
     @Override
@@ -36,6 +44,7 @@ public class MainActivity extends Activity {
 
         // -----------demo view config ------------
         startLocation = (Button) findViewById(R.id.addfence);
+        LocationResult = (TextView) findViewById(R.id.textView1);
         mMapView = (MapView) findViewById(R.id.bmapView);
         mMap = mMapView.getMap();//获取地图控件对象
         mMap.setMyLocationEnabled(true);//开启定位地图图层
@@ -46,6 +55,9 @@ public class MainActivity extends Activity {
         locationService.registerListener(mListener);
         //设置定位参数
         locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+
+        //创建POI检索实例并注册监听
+        poiSearchService = new PoiSearchService(poiListener);
     }
 
     @Override
@@ -76,6 +88,22 @@ public class MainActivity extends Activity {
         });
     }
 
+    //更新textview
+    public void updateMap(final String str){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LocationResult.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        LocationResult.setText(str);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    //实现定位监听
     private BDAbstractLocationListener mListener = new BDAbstractLocationListener() {
 
         @Override
@@ -117,134 +145,60 @@ public class MainActivity extends Activity {
                     + "Direc:" + location.getDirection() + "\n"
                     + "locTimes:" + locTimes + "\n"
                     + "Code:" + location.getLocType());
-            if (location.getPoiList() == null) {
-                System.out.println("失败！！！！！！！！！！！！！！！！！！");
+
+            //检测POI获取结果
+            StringBuffer sb = new StringBuffer(256);
+            sb.append("结果：\n");
+            if (location.getPoiList() == null||location.getPoiList().isEmpty()) {
+                System.out.println("POI为空！！！！！！！！！！！！！！！！！！");
+            } else {
+                for (int i = 0; i < location.getPoiList().size(); i++) {
+                    Poi poi = (Poi) location.getPoiList().get(i);
+                    sb.append("poiName:");
+                    sb.append(poi.getName() + ", ");
+                    sb.append("poiTag:");
+                    sb.append(poi.getTags() + "\n");
+                }
+            }
+            if (location.getPoiRegion() == null) {
+                sb.append("Region为空！！！！！！！！！！！！！！！\n");
+            } else {
+                sb.append("PoiRegion ");// 返回定位位置相对poi的位置关系，仅在开发者设置需要POI信息时才会返回，在网络不通或无法获取时有可能返回null
+                PoiRegion poiRegion = location.getPoiRegion();
+                sb.append("DerectionDesc:"); // 获取POIREGION的位置关系
+                sb.append(poiRegion.getDerectionDesc() + "; ");
+                sb.append("Name:"); // 获取POIREGION的名字字符串
+                sb.append(poiRegion.getName() + "; ");
+                sb.append("Tags:"); // 获取POIREGION的类型
+                sb.append(poiRegion.getTags() + "; ");
+                sb.append("\nSDK版本: ");
             }
 
-//            ||
+            //更新textview
+            updateMap(sb.toString());
+        }
+    };
 
-//            //周边POI信息获取
-//            Poi poi = location.getPoiList().get(0);
-//            String poiName = poi.getName();    //获取POI名称
-//            String poiTags = poi.getTags();    //获取POI类型
-//            String poiAddr = poi.getAddr();    //获取POI地址
-//
-//            PoiRegion poiRegion = location.getPoiRegion();
-//            String poiDerectionDesc = poiRegion.getDerectionDesc();    //获取PoiRegion位置关系
-//            String poiRegionName = poiRegion.getName();    //获取PoiRegion名称
-//            String poiReTags = poiRegion.getTags();    //获取PoiRegion类型
-//
-//            System.out.println(
-//                     "poiDerectionDesc:" + poiDerectionDesc + "\n"
-//                    + "poiRegionName:" + poiRegionName + "\n"
-//                    + "poiReTags:" + poiReTags + "\n");
-            //输出日志
-//            Log.i("tag", "lat:" + location.getLatitude() + "\n" +
-//                    "lon:" + location.getLongitude() + "\n"
-//                    + "Radius:" + location.getRadius() + "\n"
-//                    + "Direc:" + location.getDirection() + "\n"
-//                    + "locTimes:" + locTimes);
+    //实现POI检索监听
+    private OnGetPoiSearchResultListener poiListener = new OnGetPoiSearchResultListener() {
+        @Override
+        public void onGetPoiResult(PoiResult poiResult) {
 
-//                int tag = 1;
-//                StringBuffer sb = new StringBuffer(256);
-//                sb.append("time : ");
-//                /**
-//                 * 时间也可以使用systemClock.elapsedRealtime()方法 获取的是自从开机以来，每次回调的时间；
-//                 * location.getTime() 是指服务端出本次结果的时间，如果位置不发生变化，则时间不变
-//                 */
-//                sb.append(location.getTime());
-//                sb.append("\nlocType : ");// 定位类型
-//                sb.append(location.getLocType());
-//                sb.append("\nlocType description : ");// *****对应的定位类型说明*****
-//                sb.append(location.getLocTypeDescription());
-//                sb.append("\nlatitude : ");// 纬度
-//                sb.append(location.getLatitude());
-//                sb.append("\nlongtitude : ");// 经度
-//                sb.append(location.getLongitude());
-//                sb.append("\nradius : ");// 半径
-//                sb.append(location.getRadius());
-//                sb.append("\nCountryCode : ");// 国家码
-//                sb.append(location.getCountryCode());
-//                sb.append("\nProvince : ");// 获取省份
-//                sb.append(location.getProvince());
-//                sb.append("\nCountry : ");// 国家名称
-//                sb.append(location.getCountry());
-//                sb.append("\ncitycode : ");// 城市编码
-//                sb.append(location.getCityCode());
-//                sb.append("\ncity : ");// 城市
-//                sb.append(location.getCity());
-//                sb.append("\nDistrict : ");// 区
-//                sb.append(location.getDistrict());
-//                sb.append("\nTown : ");// 获取镇信息
-//                sb.append(location.getTown());
-//                sb.append("\nStreet : ");// 街道
-//                sb.append(location.getStreet());
-//                sb.append("\naddr : ");// 地址信息
-//                sb.append(location.getAddrStr());
-//                sb.append("\nStreetNumber : ");// 获取街道号码
-//                sb.append(location.getStreetNumber());
-//                sb.append("\nUserIndoorState: ");// *****返回用户室内外判断结果*****
-//                sb.append(location.getUserIndoorState());
-//                sb.append("\nDirection(not all devices have value): ");
-//                sb.append(location.getDirection());// 方向
-//                sb.append("\nlocationdescribe: ");
-//                sb.append(location.getLocationDescribe());// 位置语义化信息
-//                sb.append("\nPoi: ");// POI信息
-//                if (location.getPoiList() != null && !location.getPoiList().isEmpty()) {
-//                    for (int i = 0; i < location.getPoiList().size(); i++) {
-//                        Poi poi = (Poi) location.getPoiList().get(i);
-//                        sb.append("poiName:");
-//                        sb.append(poi.getName() + ", ");
-//                        sb.append("poiTag:");
-//                        sb.append(poi.getTags() + "\n");
-//                    }
-//                }
-//                if (location.getPoiRegion() != null) {
-//                    sb.append("PoiRegion: ");// 返回定位位置相对poi的位置关系，仅在开发者设置需要POI信息时才会返回，在网络不通或无法获取时有可能返回null
-//                    PoiRegion poiRegion = location.getPoiRegion();
-//                    sb.append("DerectionDesc:"); // 获取POIREGION的位置关系，ex:"内"
-//                    sb.append(poiRegion.getDerectionDesc() + "; ");
-//                    sb.append("Name:"); // 获取POIREGION的名字字符串
-//                    sb.append(poiRegion.getName() + "; ");
-//                    sb.append("Tags:"); // 获取POIREGION的类型
-//                    sb.append(poiRegion.getTags() + "; ");
-//                    sb.append("\nSDK版本: ");
-//                }
-//                sb.append(locationService.getSDKVersion()); // 获取SDK版本
-//                if (location.getLocType() == BDLocation.TypeGpsLocation) {// GPS定位结果
-//                    sb.append("\nspeed : ");
-//                    sb.append(location.getSpeed());// 速度 单位：km/h
-//                    sb.append("\nsatellite : ");
-//                    sb.append(location.getSatelliteNumber());// 卫星数目
-//                    sb.append("\nheight : ");
-//                    sb.append(location.getAltitude());// 海拔高度 单位：米
-//                    sb.append("\ngps status : ");
-//                    sb.append(location.getGpsAccuracyStatus());// *****gps质量判断*****
-//                    sb.append("\ndescribe : ");
-//                    sb.append("gps定位成功");
-//                } else if (location.getLocType() == BDLocation.TypeNetWorkLocation) {// 网络定位结果
-//                    // 运营商信息
-//                    if (location.hasAltitude()) {// *****如果有海拔高度*****
-//                        sb.append("\nheight : ");
-//                        sb.append(location.getAltitude());// 单位：米
-//                    }
-//                    sb.append("\noperationers : ");// 运营商信息
-//                    sb.append(location.getOperators());
-//                    sb.append("\ndescribe : ");
-//                    sb.append("网络定位成功");
-//                } else if (location.getLocType() == BDLocation.TypeOffLineLocation) {// 离线定位结果
-//                    sb.append("\ndescribe : ");
-//                    sb.append("离线定位成功，离线定位结果也是有效的");
-//                } else if (location.getLocType() == BDLocation.TypeServerError) {
-//                    sb.append("\ndescribe : ");
-//                    sb.append("服务端网络定位失败，可以反馈IMEI号和大体定位时间到loc-bugs@baidu.com，会有人追查原因");
-//                } else if (location.getLocType() == BDLocation.TypeNetWorkException) {
-//                    sb.append("\ndescribe : ");
-//                    sb.append("网络不同导致定位失败，请检查网络是否通畅");
-//                } else if (location.getLocType() == BDLocation.TypeCriteriaException) {
-//                    sb.append("\ndescribe : ");
-//                    sb.append("无法获取有效定位依据导致定位失败，一般是由于手机的原因，处于飞行模式下一般会造成这种结果，可以试着重启手机");
-//                }
+        }
+
+        @Override
+        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+
+        }
+
+        @Override
+        public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
+
+        }
+
+        @Override
+        public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+
         }
     };
 
