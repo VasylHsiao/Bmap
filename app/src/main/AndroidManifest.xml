@@ -28,11 +28,6 @@
             </intent-filter>
         </activity>
     </application>
-    <!--    &lt;!&ndash; 访问网络，进行地图相关业务数据请求，包括地图数据，路线规划，POI检索等 &ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.INTERNET" />-->
-    <!--    &lt;!&ndash; 获取网络状态，根据网络状态切换进行数据请求网络转换 &ndash;&gt;-->
-    <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-    <!--    &lt;!&ndash; 读取外置存储。如果开发者使用了so动态加载功能并且把so文件放在了外置存储区域，则需要申请该权限，否则不需要 &ndash;&gt;-->
 
     <!-- 这个权限用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -70,4 +65,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- 读取缓存数据 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <!--允许程序改变网络连接状态-->
 </manifest>
