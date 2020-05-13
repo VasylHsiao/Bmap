@@ -139,18 +139,24 @@ public class MainActivity extends Activity {
 //            BitmapDescriptor BitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.location_marker);//自定义图标
             MyLocationConfiguration mLocationConfig = new MyLocationConfiguration(MyLocationConfiguration.LocationMode.NORMAL, true, null);
             mMap.setMyLocationConfiguration(mLocationConfig);
-            mMap.setMyLocationData(locData);//显示定位蓝点
-            //输出
-            System.out.println("lat:" + location.getLatitude() + "\n" +
-                    "lon:" + location.getLongitude() + "\n"
-                    + "Radius:" + location.getRadius() + "\n"
-                    + "Direc:" + location.getDirection() + "\n"
-                    + "locTimes:" + locTimes + "\n"
-                    + "Code:" + location.getLocType());
+            mMap.setMyLocationData(locData);//显示定位蓝点、
 
-            //检测POI获取结果
+            //检测定位结果
             StringBuffer sb = new StringBuffer(256);
             sb.append("结果：\n");
+            sb.append("lat:");
+            sb.append(location.getLatitude()+"\n");
+            sb.append("lon:");
+            sb.append(location.getLongitude()+"\n");
+            sb.append("Radius:");
+            sb.append(location.getRadius()+"\n");
+            sb.append("Direc:");
+            sb.append(location.getDirection()+"\n");
+            sb.append("locTimes:");
+            sb.append(locTimes+"\n");
+            sb.append("Code:");
+            sb.append(location.getLocType()+"\n");
+            //检测POI获取结果
             if (location.getPoiList() == null || location.getPoiList().isEmpty()) {
                 System.out.println("POI为空！！！！！！！！！！！！！！！！！！");
             } else {
