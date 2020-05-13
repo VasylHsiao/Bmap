@@ -55,16 +55,6 @@
                 android:textSize="@dimen/ui_size" />
 
             <Button
-                android:id="@+id/search_previous"
-                android:layout_width="60dp"
-                android:layout_height="30dp"
-                android:layout_margin="2dp"
-                android:background="@drawable/btn_selector"
-                android:text="上一组"
-                android:textColor="@color/white"
-                android:textSize="@dimen/ui_size" />
-
-            <Button
                 android:id="@+id/search_next"
                 android:layout_width="60dp"
                 android:layout_height="30dp"

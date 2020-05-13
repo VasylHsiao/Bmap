@@ -3,4 +3,6 @@
     <string name="app_name">bmap1_map</string>
     <string name="startsearch">开始检索</string>
     <string name="stopsearch">停止检索</string>
+    <string name="next">下一组</string>
+    <string name="previous">上一组</string>
 </resources>

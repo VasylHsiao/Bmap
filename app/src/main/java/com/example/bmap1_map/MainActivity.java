@@ -46,9 +46,7 @@ public class MainActivity extends Activity {
     public BaiduMap mMap;
     private LocationService locationService;
     private TextView LocationResult;
-    private TextView LocationDiagnostic;
     private Button searchPOI;
-    private Button searchPre;
     private Button searchNext;
     private int locTimes = 0;//定位次数，用于控制地图更新动作（仅第一次调整中心和比例）
     private PoiSearchService poiSearchService;
@@ -64,14 +62,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_poinearbysearch);
-        setContentView(R.layout.main_activity1);
+        setContentView(R.layout.activity_poinearbysearch);
+//        setContentView(R.layout.main_activity1);
 
         // -----------demo view config ------------
         LocationResult = (TextView) findViewById(R.id.textView);//定位结果展示栏
         mEditRadius = (EditText) findViewById(R.id.edit_radius);//半径输入栏
         searchPOI = (Button) findViewById(R.id.search_poi);//检索按钮
-        searchPre = (Button) findViewById(R.id.search_previous);//下一组按钮
         searchNext = (Button) findViewById(R.id.search_next);//下一组按钮
         mMapView = (MapView) findViewById(R.id.bmapView);//地图
         mMap = mMapView.getMap();//获取地图控件对象
@@ -102,37 +99,29 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        //开始检索+上一组检索
         searchPOI.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+
+                radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
                 if (searchPOI.getText().toString().equals(getString(R.string.startsearch))) {
                     //开始检索
-                    radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
                     num = 0;
                     searchNearby(radius, num);
-                    //按钮变换
-                    searchPOI.setText(getString(R.string.stopsearch));
-                } else {
-                    //停止检索
+                } else if(num > 1){
+                    num--;
+                    searchNearby(radius, num);
+                }else if(num ==1){
+                    num--;
+                    searchNearby(radius, num);
                     searchPOI.setText(getString(R.string.startsearch));
                 }
             }
         });
 
-        searchPre.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //检索上一组
-                radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
-                if (num >= 1) {
-                    num--;
-                    searchNearby(radius, num);
-                }
-            }
-        });
-
+        //下一组检索
         searchNext.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -141,6 +130,17 @@ public class MainActivity extends Activity {
                 radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
                 num++;
                 searchNearby(radius, num);
+                //检索按钮变为“上一组”
+                searchPOI.setText(getString(R.string.previous));
+            }
+        });
+
+        //重新输入半径，重置检索
+        mEditRadius.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                searchPOI.setText(getString(R.string.startsearch));
             }
         });
     }
@@ -242,7 +242,7 @@ public class MainActivity extends Activity {
         public void onGetPoiResult(final PoiResult result) {
 
             if (result == null || result.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-                Toast.makeText(MainActivity.this, "未再找到结果", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "以下再无信息", Toast.LENGTH_LONG).show();
                 return;
             }
 
