@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">bmap1_map</string>
-    <string name="startlocation">开始定位</string>
-    <string name="stoplocation">停止定位</string>
+    <string name="startsearch">开始检索</string>
+    <string name="stopsearch">停止检索</string>
 </resources>

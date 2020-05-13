@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,12 +29,13 @@ public class MainActivity extends Activity {
     public BaiduMap mMap;
     private LocationService locationService;
     private TextView LocationResult;
-    //    private TextView LocationDiagnostic;
+    private TextView LocationDiagnostic;
     private Button startLocation;
     private int locTimes = 0;//定位次数，用于控制地图更新动作（仅第一次调整中心和比例）
     private PoiSearchService poiSearchService;
     private EditText mEditRadius;
     private RelativeLayout mPoiDetailView;
+    private ListView mPoiList;
 
 
     @Override
@@ -42,14 +44,14 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_poinearbysearch);
 
         // -----------demo view config ------------
-        startLocation = (Button) findViewById(R.id.loc_search);
-        LocationResult = (TextView) findViewById(R.id.textView);
-        mMapView = (MapView) findViewById(R.id.bmapView);
-//        mEditRadius = (EditText) findViewById(R.id.edit_radius);
-//        mPoiDetailView = (RelativeLayout) findViewById(R.id.poi_detail);
-
+        LocationResult = (TextView) findViewById(R.id.textView);//定位结果展示栏
+        mEditRadius = (EditText) findViewById(R.id.edit_radius);//半径输入栏
+        startLocation = (Button) findViewById(R.id.loc_search);//按钮
+        mMapView = (MapView) findViewById(R.id.bmapView);//地图
         mMap = mMapView.getMap();//获取地图控件对象
         mMap.setMyLocationEnabled(true);//开启定位地图图层
+        mPoiDetailView = (RelativeLayout) findViewById(R.id.poi_detail);
+        mPoiList = (ListView) findViewById(R.id.poi_list);//POI检索信息展示
 
         //获取locationservice实例
         locationService = ((Map) getApplication()).locationService;
@@ -57,6 +59,9 @@ public class MainActivity extends Activity {
         locationService.registerListener(mListener);
         //设置定位参数
         locationService.setLocationOption(locationService.getDefaultLocationClientOption());
+        //开始定位
+        locationService.start();// 定位SDK
+        locTimes = 0;//定位次数置零
 
         //创建POI检索实例并注册监听
 //        poiSearchService = new PoiSearchService(poiListener);
@@ -78,13 +83,14 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                if (startLocation.getText().toString().equals(getString(R.string.startlocation))) {
-                    locationService.start();// 定位SDK
-                    locTimes = 0;//定位次数置零
-                    startLocation.setText(getString(R.string.stoplocation));
+                if (startLocation.getText().toString().equals(getString(R.string.startsearch))) {
+                    //开始检索
+
+                    startLocation.setText(getString(R.string.stopsearch));
                 } else {
-                    locationService.stop();
-                    startLocation.setText(getString(R.string.startlocation));
+                    //停止检索
+
+                    startLocation.setText(getString(R.string.startsearch));
                 }
             }
         });
@@ -145,17 +151,17 @@ public class MainActivity extends Activity {
             StringBuffer sb = new StringBuffer(256);
             sb.append("结果：\n");
             sb.append("lat:");
-            sb.append(location.getLatitude()+"\n");
+            sb.append(location.getLatitude() + "\n");
             sb.append("lon:");
-            sb.append(location.getLongitude()+"\n");
+            sb.append(location.getLongitude() + "\n");
             sb.append("Radius:");
-            sb.append(location.getRadius()+"\n");
+            sb.append(location.getRadius() + "\n");
             sb.append("Direc:");
-            sb.append(location.getDirection()+"\n");
+            sb.append(location.getDirection() + "\n");
             sb.append("locTimes:");
-            sb.append(locTimes+"\n");
+            sb.append(locTimes + "\n");
             sb.append("Code:");
-            sb.append(location.getLocType()+"\n");
+            sb.append(location.getLocType() + "\n");
             //检测POI获取结果
             if (location.getPoiList() == null || location.getPoiList().isEmpty()) {
                 System.out.println("POI为空！！！！！！！！！！！！！！！！！！");

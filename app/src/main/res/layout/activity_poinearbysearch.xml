@@ -62,7 +62,7 @@
                 android:layout_height="35dp"
                 android:layout_margin="2dp"
                 android:background="@drawable/btn_selector"
-                android:text="@string/startlocation"
+                android:text="@string/startsearch"
                 android:textColor="@color/white"
                 android:textSize="@dimen/ui_size" />
         </LinearLayout>
