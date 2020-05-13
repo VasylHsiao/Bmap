@@ -3,6 +3,7 @@ package com.example.bmap1_map;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -21,6 +22,7 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.PoiInfo;
+import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
 import com.baidu.mapapi.search.poi.PoiDetailResult;
 import com.baidu.mapapi.search.poi.PoiDetailSearchResult;
@@ -216,35 +218,34 @@ public class MainActivity extends Activity {
     private OnGetPoiSearchResultListener poiListener = new OnGetPoiSearchResultListener() {
         @Override
         public void onGetPoiResult(final PoiResult result) {
-//            if (result.error == SearchResult.ERRORNO.NO_ERROR) {
-//                mPoiDetailView.setVisibility(View.VISIBLE);
-//                mMap.clear();
-////             监听 View 绘制完成后获取view的高度
-//                mPoiDetailView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//                    @Override
-//                    public void onGlobalLayout() {
-//                        int padding = 50;
-//                        // 添加poi
-//                        PoiOverlay overlay = new MyPoiOverlay(mMap);
-//                        mMap.setOnMarkerClickListener(overlay);
-//                        overlay.setData(result);
-//                        overlay.addToMap();
-//                        // 获取 view 的高度
-//                        int PaddingBootom = mPoiDetailView.getMeasuredHeight();
-//                        // 设置显示在规定宽高中的地图地理范围
-//                        overlay.zoomToSpanPaddingBounds(padding, padding, padding, PaddingBootom);
-//                        // 加载完后需要移除View的监听，否则会被多次触发
-//                        mPoiDetailView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//                    }
-//                });
-//            }
-//            mAllPoi = result.getAllPoi();
-//            PoiListAdapter poiListAdapter = new PoiListAdapter(this, mAllPoi);
-//            poiListAdapter.setOnGetChildrenLocationListener(this);
-//            mPoiList.setAdapter(poiListAdapter);
-//            mPoiDetailView.setVisibility(View.VISIBLE);
-            mAllPoi = result.getAllPoi();
             StringBuffer sb1 = new StringBuffer(256);
+//            POI检索结果地图标记形式
+            if (result != null || result.error == SearchResult.ERRORNO.NO_ERROR) {
+                mPoiDetailView.setVisibility(View.VISIBLE);
+                mMap.clear();
+                sb1.append("\n这里成功啦！！！！！！！！！！\n");
+//             监听 View 绘制完成后获取view的高度
+                mPoiDetailView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int padding = 50;
+                        // 添加poi
+                        PoiOverlay overlay = new MyPoiOverlay(mMap);
+                        mMap.setOnMarkerClickListener(overlay);
+                        overlay.setData(result);
+                        overlay.addToMap();
+                        // 获取 view 的高度
+                        int PaddingBootom = mPoiDetailView.getMeasuredHeight();
+                        // 设置显示在规定宽高中的地图地理范围
+                        overlay.zoomToSpanPaddingBounds(padding, padding, padding, PaddingBootom);
+                        // 加载完后需要移除View的监听，否则会被多次触发
+                        mPoiDetailView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                });
+            }
+
+            //POI检索结果文字形式
+            mAllPoi = result.getAllPoi();
             if (mAllPoi != null) {
                 sb1.append("POI检索结果为:" + "\n");
                 for (PoiInfo poiInfo : mAllPoi) {
