@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/config_id"
+        android:id="@+id/opration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/dkgray"
@@ -81,7 +81,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/config_id">
+        android:layout_below="@id/opration">
 
         <com.baidu.mapapi.map.MapView
             android:id="@+id/bmapView"

@@ -64,7 +64,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_poinearbysearch);
+//        setContentView(R.layout.activity_poinearbysearch);
+        setContentView(R.layout.main_activity1);
 
         // -----------demo view config ------------
         LocationResult = (TextView) findViewById(R.id.textView);//定位结果展示栏
