@@ -145,6 +145,13 @@ public class LocationService {
             }
         }
     }
+    public void restart() {
+        synchronized (objLock) {
+            if (client != null && !client.isStarted()) {
+                client.restart();
+            }
+        }
+    }
 
     public void requestLocation() {
         if (client != null) {
