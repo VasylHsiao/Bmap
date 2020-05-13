@@ -1,9 +1,11 @@
 package com.example.bmap1_map;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -15,11 +17,14 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.Poi;
 import com.baidu.location.PoiRegion;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.CircleOptions;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
@@ -42,14 +47,18 @@ public class MainActivity extends Activity {
     private LocationService locationService;
     private TextView LocationResult;
     private TextView LocationDiagnostic;
-    private Button startLocation;
+    private Button searchPOI;
+    private Button searchPre;
+    private Button searchNext;
     private int locTimes = 0;//定位次数，用于控制地图更新动作（仅第一次调整中心和比例）
     private PoiSearchService poiSearchService;
-    private EditText mEditRadius;
+    private EditText mEditRadius;//半径输入框
     private RelativeLayout mPoiDetailView;
     private TextView mPoiResult;
     private List<PoiInfo> mAllPoi;
     private LatLng ll;
+    private int radius;//半径
+    private int num = 0;//检索分页数量
 
 
     @Override
@@ -60,7 +69,9 @@ public class MainActivity extends Activity {
         // -----------demo view config ------------
         LocationResult = (TextView) findViewById(R.id.textView);//定位结果展示栏
         mEditRadius = (EditText) findViewById(R.id.edit_radius);//半径输入栏
-        startLocation = (Button) findViewById(R.id.loc_search);//按钮
+        searchPOI = (Button) findViewById(R.id.search_poi);//检索按钮
+        searchPre = (Button) findViewById(R.id.search_previous);//下一组按钮
+        searchNext = (Button) findViewById(R.id.search_next);//下一组按钮
         mMapView = (MapView) findViewById(R.id.bmapView);//地图
         mMap = mMapView.getMap();//获取地图控件对象
         mMap.setMyLocationEnabled(true);//开启定位地图图层
@@ -89,28 +100,46 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        startLocation.setOnClickListener(new View.OnClickListener() {
+
+        searchPOI.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if (startLocation.getText().toString().equals(getString(R.string.startsearch))) {
+                if (searchPOI.getText().toString().equals(getString(R.string.startsearch))) {
                     //开始检索
-                    // 配置请求参数
-                    PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption()
-                            .keyword("停车场") // 检索关键字
-                            .location(ll) // 经纬度
-                            .radius(10000) // 检索半径 单位： m
-                            .pageNum(0) // 分页编号
-                            .radiusLimit(false)
-                            .scope(2);
-                    // 发起检索
-                    poiSearchService.getPoiOb().searchNearby(nearbySearchOption);
-                    startLocation.setText(getString(R.string.stopsearch));
+                    radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
+                    num = 0;
+                    searchNearby(radius, num);
+                    //按钮变换
+                    searchPOI.setText(getString(R.string.stopsearch));
                 } else {
                     //停止检索
-
-                    startLocation.setText(getString(R.string.startsearch));
+                    searchPOI.setText(getString(R.string.startsearch));
                 }
+            }
+        });
+
+        searchPre.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                //检索上一组
+                radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
+                if (num >= 1) {
+                    num--;
+                    searchNearby(radius, num);
+                }
+            }
+        });
+
+        searchNext.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                //检索下一组
+                radius = Integer.parseInt(mEditRadius.getText().toString());//获取半径
+                num++;
+                searchNearby(radius, num);
             }
         });
     }
@@ -202,15 +231,7 @@ public class MainActivity extends Activity {
             }
 
             //更新textview
-            updateMap(LocationResult, sb.toString());
-
-
-            //开始POI检索
-//            int radius = Integer.parseInt(mEditRadius.getText().toString());
-//            String keyword = "停车场";
-//            int PageNum = 10;
-//            if (poiSearchService.poiSearchNearby(new LatLng(location.getLatitude(), location.getLongitude()), radius, keyword, 0)) {
-//            }
+//            updateMap(LocationResult, sb.toString());
         }
     };
 
@@ -218,13 +239,19 @@ public class MainActivity extends Activity {
     private OnGetPoiSearchResultListener poiListener = new OnGetPoiSearchResultListener() {
         @Override
         public void onGetPoiResult(final PoiResult result) {
+
+            if (result == null || result.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
+                Toast.makeText(MainActivity.this, "未再找到结果", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             StringBuffer sb1 = new StringBuffer(256);
-//            POI检索结果地图标记形式
-            if (result != null || result.error == SearchResult.ERRORNO.NO_ERROR) {
-                mPoiDetailView.setVisibility(View.VISIBLE);
-                mMap.clear();
+            //POI检索结果地图标记形式
+            mMap.clear();//清空地图标记
+            if (result.error == SearchResult.ERRORNO.NO_ERROR) {
                 sb1.append("\n这里成功啦！！！！！！！！！！\n");
-//             监听 View 绘制完成后获取view的高度
+                System.out.println("正在绘图！！！！！！！！！！！\n");
+                //监听 View 绘制完成后获取view的高度
                 mPoiDetailView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
@@ -240,6 +267,7 @@ public class MainActivity extends Activity {
                         overlay.zoomToSpanPaddingBounds(padding, padding, padding, PaddingBootom);
                         // 加载完后需要移除View的监听，否则会被多次触发
                         mPoiDetailView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        showNearbyArea(ll, radius);//绘制检索范围（圆圈）
                     }
                 });
             }
@@ -253,13 +281,12 @@ public class MainActivity extends Activity {
                     sb1.append("Address:" + poiInfo.getAddress() + ", ");
                     sb1.append("Uid:" + poiInfo.getUid() + ", ");
                     sb1.append("Location:" + poiInfo.getLocation().latitude + "," + poiInfo.getLocation().longitude + "\n");
-//                poiInfo.getPoiDetailInfo();
                 }
             } else {
                 sb1.append("POI检索失败！\n");
             }
             updateMap(mPoiResult, sb1.toString());
-            mPoiDetailView.setVisibility(View.VISIBLE);
+//            mPoiDetailView.setVisibility(View.VISIBLE);//显示文字结果
 
         }
 
@@ -293,6 +320,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    //开始检索
+    public void searchNearby(int rad, int num) {
+        KeybordUtil.closeKeybord(this);
+        // 配置请求参数
+        PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption()
+                .keyword("停车场") // 检索关键字
+                .location(ll) // 经纬度
+                .radius(rad) // 检索半径 单位： m
+                .pageNum(num) // 分页编号
+                .radiusLimit(false)
+                .scope(2);
+        // 发起检索
+        poiSearchService.getPoiOb().searchNearby(nearbySearchOption);
+        System.out.println(radius + " + " + num);
+    }
+
     //更新textview
     public void updateMap(final TextView text, final String str) {
         new Thread(new Runnable() {
@@ -308,4 +351,24 @@ public class MainActivity extends Activity {
         }).start();
     }
 
+    //对周边检索的范围进行绘制
+    public void showNearbyArea(LatLng center, int radius) {
+        OverlayOptions ooCircle = new CircleOptions()
+                .fillColor(0x01010110)
+                .center(center)
+                .stroke(new Stroke(1, 0xFFFF00FF))
+                .radius(radius);
+        mMap.addOverlay(ooCircle);
+    }
+
+    public static class KeybordUtil {
+
+        //关闭软键盘
+        public static void closeKeybord(Activity activity) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
+            }
+        }
+    }
 }
