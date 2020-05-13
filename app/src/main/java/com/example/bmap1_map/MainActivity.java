@@ -3,12 +3,10 @@ package com.example.bmap1_map;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -21,15 +19,7 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.core.PoiInfo;
-import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
-import com.baidu.mapapi.search.poi.PoiDetailResult;
-import com.baidu.mapapi.search.poi.PoiDetailSearchResult;
-import com.baidu.mapapi.search.poi.PoiIndoorResult;
-import com.baidu.mapapi.search.poi.PoiResult;
 import com.example.bmap1_map.service.LocationService;
-import com.example.bmap1_map.service.PoiOverlay;
 import com.example.bmap1_map.service.PoiSearchService;
 
 public class MainActivity extends Activity {
@@ -55,8 +45,8 @@ public class MainActivity extends Activity {
         startLocation = (Button) findViewById(R.id.loc_search);
         LocationResult = (TextView) findViewById(R.id.textView);
         mMapView = (MapView) findViewById(R.id.bmapView);
-        mEditRadius = (EditText) findViewById(R.id.edit_radius);
-        mPoiDetailView = (RelativeLayout) findViewById(R.id.poi_detail);
+//        mEditRadius = (EditText) findViewById(R.id.edit_radius);
+//        mPoiDetailView = (RelativeLayout) findViewById(R.id.poi_detail);
 
         mMap = mMapView.getMap();//获取地图控件对象
         mMap.setMyLocationEnabled(true);//开启定位地图图层
@@ -69,7 +59,7 @@ public class MainActivity extends Activity {
         locationService.setLocationOption(locationService.getDefaultLocationClientOption());
 
         //创建POI检索实例并注册监听
-        poiSearchService = new PoiSearchService(poiListener);
+//        poiSearchService = new PoiSearchService(poiListener);
     }
 
     @Override
@@ -151,12 +141,12 @@ public class MainActivity extends Activity {
             mMap.setMyLocationConfiguration(mLocationConfig);
             mMap.setMyLocationData(locData);//显示定位蓝点
             //输出
-//            System.out.println("lat:" + location.getLatitude() + "\n" +
-//                    "lon:" + location.getLongitude() + "\n"
-//                    + "Radius:" + location.getRadius() + "\n"
-//                    + "Direc:" + location.getDirection() + "\n"
-//                    + "locTimes:" + locTimes + "\n"
-//                    + "Code:" + location.getLocType());
+            System.out.println("lat:" + location.getLatitude() + "\n" +
+                    "lon:" + location.getLongitude() + "\n"
+                    + "Radius:" + location.getRadius() + "\n"
+                    + "Direc:" + location.getDirection() + "\n"
+                    + "locTimes:" + locTimes + "\n"
+                    + "Code:" + location.getLocType());
 
             //检测POI获取结果
             StringBuffer sb = new StringBuffer(256);
@@ -191,76 +181,49 @@ public class MainActivity extends Activity {
 
 
             //开始POI检索
-            int radius = Integer.parseInt(mEditRadius.getText().toString());
-            String keyword = "停车场";
-            int PageNum = 10;
-            if (poiSearchService.poiSearchNearby(new LatLng(location.getLatitude(), location.getLongitude()), radius, keyword, 0)) {
-//                updateMap(sb.toString());
-            }
+//            int radius = Integer.parseInt(mEditRadius.getText().toString());
+//            String keyword = "停车场";
+//            int PageNum = 10;
+//            if (poiSearchService.poiSearchNearby(new LatLng(location.getLatitude(), location.getLongitude()), radius, keyword, 0)) {
+//            }
         }
     };
 
     //实现POI检索监听
-    private OnGetPoiSearchResultListener poiListener = new OnGetPoiSearchResultListener() {
-        @Override
-        public void onGetPoiResult(final PoiResult result) {
+//    private OnGetPoiSearchResultListener poiListener = new OnGetPoiSearchResultListener() {
+//        @Override
+//        public void onGetPoiResult(final PoiResult result) {
+//        }
+//
+//        @Override
+//        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+//
+//        }
+//
+//        @Override
+//        public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
+//
+//        }
+//
+//        @Override
+//        public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+//
+//        }
+//    };
 
-            if (result.error == SearchResult.ERRORNO.NO_ERROR) {
-                System.out.println("lallalallalallalallallal");
-                mPoiDetailView.setVisibility(View.VISIBLE);
-                mMap.clear();
-                //监听 View 绘制完成后获取view的高度
-                mPoiDetailView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        int padding = 50;
-                        // 添加poi
-                        PoiOverlay overlay = new MyPoiOverlay(mMap);
-                        mMap.setOnMarkerClickListener(overlay);
-                        overlay.setData(result);
-                        overlay.addToMap();
-                        // 获取 view 的高度
-                        int PaddingBootom = mPoiDetailView.getMeasuredHeight();
-                        // 设置显示在规定宽高中的地图地理范围
-                        overlay.zoomToSpanPaddingBounds(padding, padding, padding, PaddingBootom);
-                        // 加载完后需要移除View的监听，否则会被多次触发
-                        mPoiDetailView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                });
-                mPoiDetailView.setVisibility(View.VISIBLE);
-                return;
-            }
-        }
-
-        @Override
-        public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
-
-        }
-
-        @Override
-        public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
-
-        }
-
-        @Override
-        public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
-
-        }
-    };
-
-    private class MyPoiOverlay extends PoiOverlay {
-        MyPoiOverlay(BaiduMap baiduMap) {
-            super(baiduMap);
-        }
-
-        @Override
-        public boolean onPoiClick(int index) {
-            super.onPoiClick(index);
-            PoiInfo poi = getPoiResult().getAllPoi().get(index);
-            Toast.makeText(MainActivity.this, poi.address, Toast.LENGTH_LONG).show();
-            return true;
-        }
-    }
+//    private class MyPoiOverlay extends PoiOverlay {
+//        MyPoiOverlay(BaiduMap baiduMap) {
+//            super(baiduMap);
+//        }
+//
+//        @Override
+//        public boolean onPoiClick(int index) {
+//            super.onPoiClick(index);
+//            PoiInfo poi = getPoiResult().getAllPoi().get(index);
+//            Toast.makeText(MainActivity.this, poi.address, Toast.LENGTH_LONG).show();
+//            return true;
+//        }
+//    }
 
 
 }

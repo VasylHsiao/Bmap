@@ -62,7 +62,6 @@
                 android:layout_height="35dp"
                 android:layout_margin="2dp"
                 android:background="@drawable/btn_selector"
-                android:onClick="searchNearbyProcess"
                 android:text="@string/startlocation"
                 android:textColor="@color/white"
                 android:textSize="@dimen/ui_size" />
