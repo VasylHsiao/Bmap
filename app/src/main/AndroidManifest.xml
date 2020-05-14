@@ -67,6 +67,14 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--允许程序改变网络连接状态-->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!--写入扩展存储，向扩展卡写入数据，用于离线数据的写入 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- 用于ugc事件上报拍照录像 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 用于ugc事件上报录音 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- 用于导航中省电设置 -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
 
 </manifest>
