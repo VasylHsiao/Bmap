@@ -3,7 +3,6 @@ package com.example.bmap1_map;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
