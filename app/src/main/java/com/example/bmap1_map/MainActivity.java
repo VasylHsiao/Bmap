@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poinearbysearch);
-//        setContentView(R.layout.main_activity1);
+//        setContentView(R.layout.main_activity1);//测试新的布局
 
         // -----------demo view config ------------
         LocationResult = (TextView) findViewById(R.id.textView);//定位结果展示栏
@@ -355,9 +355,9 @@ public class MainActivity extends Activity {
     //对周边检索的范围进行绘制
     public void showNearbyArea(LatLng center, int radius) {
         OverlayOptions ooCircle = new CircleOptions()
-                .fillColor(0x01010110)
+                .fillColor(0x1033b5e5)
                 .center(center)
-                .stroke(new Stroke(1, 0xFFFF00FF))
+                .stroke(new Stroke(2, 0xFFFF00FF))
                 .radius(radius);
         mMap.addOverlay(ooCircle);
     }

@@ -51,7 +51,7 @@
             android:background="#675E5E"
             android:inputType="number"
             android:text="1000"
-            android:textColor="@color/white"
+            android:textColor="@android:color/holo_blue_light"
             android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@+id/search_poi"
             app:layout_constraintEnd_toEndOf="parent"
